@@ -1,0 +1,12 @@
+spring:
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: qwen3:4b
+  application:
+    name: assistant-app
+  datasource:
+    url: jdbc:postgresql://localhost:5432/assistant
+    username: postgres
+    password: postgres
