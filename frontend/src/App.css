@@ -1,0 +1,85 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+}
+
+.app-header h1 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.75rem;
+}
+
+.bubble p {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+}
+
+.bubble.user {
+  align-self: flex-end;
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.bubble.assistant {
+  align-self: flex-start;
+  background: #f3f4f6;
+}
+
+.role {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.composer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 0 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.composer input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.composer button {
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.composer button:disabled {
+  opacity: 0.5;
+}
+
+.empty,
+.status {
+  color: #6b7280;
+}
+
+.error {
+  color: #b91c1c;
+}
