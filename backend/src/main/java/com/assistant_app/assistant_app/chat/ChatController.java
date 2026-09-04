@@ -7,14 +7,14 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
 
     @PostMapping
-    public String chat(@RequestBody MessageRequest request) {
-        return chatService.sendMessage(request.message());
+    public ChatResponse chat(@RequestBody ChatRequest request) {
+        return new ChatResponse(chatService.sendMessage(request.message()));
     }
     
 }
