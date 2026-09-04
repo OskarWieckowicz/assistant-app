@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "backend: compile",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": [
+        "-q",
+        "compile",
+        "dependency:copy-dependencies",
+        "-DincludeScope=runtime"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "backend: spring-boot:run",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": ["spring-boot:run"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

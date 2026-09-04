@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "AssistantAppApplication",
+      "request": "launch",
+      "mainClass": "com.assistant_app.assistant_app.AssistantAppApplication",
+      "projectName": "backend"
+    }
+  ]
+}

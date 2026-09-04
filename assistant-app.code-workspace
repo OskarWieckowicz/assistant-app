@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "name": "backend",
+      "path": "backend"
+    },
+    {
+      "name": "frontend",
+      "path": "frontend"
+    },
+    {
+      "name": "repo",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "java.import.maven.enabled": true,
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.exclusions": [
+      "**/node_modules/**",
+      "**/frontend/**",
+      "**/.git/**"
+    ]
+  }
+}
