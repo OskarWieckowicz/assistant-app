@@ -17,3 +17,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/assistant
     username: postgres
     password: postgres
+app:
+  rag:
+    ingestion:
+      enabled: true

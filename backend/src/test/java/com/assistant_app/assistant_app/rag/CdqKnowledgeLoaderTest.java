@@ -6,6 +6,8 @@ import org.springframework.ai.document.Document;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ClassPathResource;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CdqKnowledgeLoaderTest {
         Resource resource = new ClassPathResource("knowledge/cdq-fraud-guard.txt");
@@ -16,11 +18,7 @@ public class CdqKnowledgeLoaderTest {
         void load_returnsCdqDocumentWithContentAndMetadata() {
                 List<Document> documents = loader.load();
                 assertThat(documents).hasSizeGreaterThan(1);
-                // for (Document document : documents) {
-                // System.out.println("--------------------------------");
-                // System.out.println(document.getText());
-                // System.out.println("--------------------------------");
-                // }
+
                 Document document = documents.get(0);
                 assertThat(document.getText())
                                 .contains("CDQ Fraud Guard")
@@ -34,5 +32,14 @@ public class CdqKnowledgeLoaderTest {
                                                 "https://www.cdq.com/products/cdq-fraud-guard")
                                 .containsEntry("source", "cdq-fraud-guard.txt")
                                 .containsEntry("charset", "UTF-8");
+
+                String combinedContent = documents.stream()
+                                .map(chunk -> Objects.requireNonNullElse(chunk.getText(), ""))
+                                .collect(Collectors.joining("\n"));
+
+                assertThat(combinedContent)
+                                .contains("CDQ Fraud Guard")
+                                .contains("Trust Score")
+                                .contains("Bank account verification");
         }
 }
