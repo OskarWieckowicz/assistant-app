@@ -9,6 +9,8 @@ import java.util.List;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.TextReader;
 
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
+
 @Component
 public class CdqKnowledgeLoader {
     private final Resource resource;
@@ -31,7 +33,14 @@ public class CdqKnowledgeLoader {
         reader.getCustomMetadata()
                 .put("title", "CDQ Fraud Guard");
 
-        return reader.get();
+        List<Document> documents = reader.get();
+        TokenTextSplitter splitter = TokenTextSplitter.builder()
+                .withChunkSize(250)
+                .withMinChunkSizeChars(100)
+                .withKeepSeparator(true)
+                .build();
+
+        return splitter.apply(documents);
     }
 
 }
