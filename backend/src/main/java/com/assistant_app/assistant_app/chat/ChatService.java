@@ -10,7 +10,6 @@ import reactor.core.publisher.Flux;
 public class ChatService {
     private final ChatClient chatClient;
 
-
     public Flux<String> sendMessage(String message) {
         return chatClient.prompt()
                 .user(message)
