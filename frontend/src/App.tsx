@@ -1,13 +1,26 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import "./App.css";
+import { readSseStream } from "./api/readSseStream";
 
 type Message = {
   role: "user" | "assistant";
   content: string;
 };
 
-type ChatResponse = {
-  answer: string;
+const appendAssistantChunk = (
+  current: Message[],
+  chunk: string,
+): Message[] => {
+  const last = current.at(-1);
+
+  if (last?.role !== "assistant") {
+    return [...current, { role: "assistant", content: chunk }];
+  }
+
+  return [
+    ...current.slice(0, -1),
+    { ...last, content: last.content + chunk },
+  ];
 };
 
 const App = () => {
@@ -16,7 +29,7 @@ const App = () => {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const text = messageInput.trim();
     if (!text || pending) return;
@@ -26,24 +39,30 @@ const App = () => {
     setPending(true);
     setError(null);
 
-    fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Request failed");
-        return response.json();
-      })
-      .then((data: ChatResponse) => {
-        setMessages((current) => [
-          ...current,
-          { role: "assistant", content: data.answer },
-        ]);
-      })
-      .catch(() => setError("Couldn't send the message."))
-      .finally(() => setPending(false));
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "text/event-stream",
+        },
+        body: JSON.stringify({ message: text }),
+      });
+      if (!response.ok || !response.body) throw new Error("Request failed");
+
+      const receivedData = await readSseStream(response.body, (chunk) => {
+        setMessages((current) => appendAssistantChunk(current, chunk));
+      });
+
+      if (!receivedData) setError("Received an empty response.");
+    } catch {
+      setError("Couldn't send the message.");
+    } finally {
+      setPending(false);
+    }
   };
+
+  const waitingForFirstChunk = pending && messages.at(-1)?.role === "user";
 
   return (
     <div className="app">
@@ -51,7 +70,12 @@ const App = () => {
         <h1>AI Assistant</h1>
       </header>
 
-      <div className="messages">
+      <div
+        className="messages"
+        role="log"
+        aria-live="polite"
+        aria-busy={pending}
+      >
         {messages.length === 0 && (
           <p className="empty">Send a message to get started.</p>
         )}
@@ -60,11 +84,19 @@ const App = () => {
             <span className="role">
               {message.role === "user" ? "You" : "Assistant"}
             </span>
-            <p>{message.content}</p>
+            {message.content && <p>{message.content}</p>}
           </div>
         ))}
-        {pending && <p className="status">Thinking…</p>}
-        {error && <p className="error">{error}</p>}
+        {waitingForFirstChunk && (
+          <p className="status" role="status">
+            Thinking…
+          </p>
+        )}
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
       </div>
 
       <form className="composer" onSubmit={handleSubmit}>
@@ -73,6 +105,7 @@ const App = () => {
           value={messageInput}
           onChange={(e) => setMessageInput(e.target.value)}
           placeholder="Message…"
+          aria-label="Message"
           disabled={pending}
         />
         <button type="submit" disabled={pending || !messageInput.trim()}>

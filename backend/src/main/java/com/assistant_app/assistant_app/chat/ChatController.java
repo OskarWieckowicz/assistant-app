@@ -1,10 +1,13 @@
 package com.assistant_app.assistant_app.chat;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+
 
 @RestController
 @RequestMapping("/api/chat")
@@ -12,9 +15,9 @@ import lombok.RequiredArgsConstructor;
 public class ChatController {
     private final ChatService chatService;
 
-    @PostMapping
-    public ChatResponse chat(@RequestBody ChatRequest request) {
-        return new ChatResponse(chatService.sendMessage(request.message()));
+    @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> chat(@RequestBody ChatRequest request) {
+        return chatService.sendMessage(request.message());
     }
     
 }

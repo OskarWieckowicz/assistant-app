@@ -60,7 +60,7 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-The backend listens on `http://localhost:8080` and exposes `POST /chat`.
+The backend listens on `http://localhost:8080` and exposes `POST /api/chat`.
 
 ### 4. Frontend
 
@@ -72,9 +72,9 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173`. Vite proxies `/chat` requests to the backend on port
-8080 during development. The current UI is the starter screen; it does not yet
-send chat requests.
+Open `http://localhost:5173`. Vite proxies `/api` requests to the backend on port
+8080 during development. The UI sends messages to `POST /api/chat` and shows
+the conversation.
 
 ## Verification
 
