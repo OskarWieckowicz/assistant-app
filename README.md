@@ -96,6 +96,19 @@ cd backend
 Run `./mvnw test` from `backend` with PostgreSQL and Ollama running; the existing
 test loads the Spring application context.
 
+Run the RAG evaluation test explicitly from `backend`:
+
+```bash
+./mvnw -Dtest=CdqRagEvaluationIT test
+```
+
+This requires PostgreSQL with previously ingested CDQ knowledge and Ollama with
+`qwen3:4b` and `mxbai-embed-large` available. The test does not ingest or replace
+documents. It evaluates three answers against their retrieved context using a
+separate chat client backed by the same model. Each question requires one answer
+generation and one evaluation call; LLM judgments can vary between runs.
+The `IT` suffix keeps this test out of the default `./mvnw test` run.
+
 ## VS Code
 
 Open `assistant-app.code-workspace` to load the backend, frontend, and repository
