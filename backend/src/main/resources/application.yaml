@@ -20,4 +20,4 @@ spring:
 app:
   rag:
     ingestion:
-      enabled: true
+      enabled: false
