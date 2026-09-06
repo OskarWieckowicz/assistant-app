@@ -51,7 +51,31 @@ Download the configured chat model:
 ollama pull qwen3:4b
 ```
 
-### 3. Backend
+### 3. Country MCP server
+
+Start the MCP server **before the backend**. It listens on
+`http://localhost:8081/mcp` and exposes `get_country` over Streamable HTTP.
+REST Countries v5 requires an API key. Set `REST_COUNTRIES_API_KEY` in the
+server's environment, then run from the repository root:
+
+```bash
+./backend/mvnw -f country-mcp-server/pom.xml spring-boot:run
+```
+
+If the key is already configured in the ignored
+`country-mcp-server/src/main/resources/application-local.yaml`, activate that
+profile explicitly instead:
+
+```bash
+./backend/mvnw -f country-mcp-server/pom.xml spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+After restarting the MCP server, restart the backend so it initializes a new
+MCP session. An old session can return `MCP session with server terminated`.
+An `Authorization key required` / HTTP 401 tool error means the MCP server's
+REST Countries API key configuration needs to be checked.
+
+### 4. Backend
 
 In a new terminal, starting from the repository root:
 
@@ -62,7 +86,7 @@ cd backend
 
 The backend listens on `http://localhost:8080` and exposes `POST /api/chat`.
 
-### 4. Frontend
+### 5. Frontend
 
 In another terminal, starting from the repository root:
 

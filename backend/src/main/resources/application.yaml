@@ -1,5 +1,12 @@
 spring:
   ai:
+    mcp:
+      client:
+        type: SYNC
+        streamable-http:
+          connections:
+            countries:
+              url: http://localhost:8081
     ollama:
       base-url: http://localhost:11434
       chat:

@@ -6,7 +6,20 @@
       "name": "AssistantAppApplication",
       "request": "launch",
       "mainClass": "com.assistant_app.assistant_app.AssistantAppApplication",
-      "projectName": "backend"
+      "projectName": "backend",
+      "noDebug": true,
+      "__progressId": "d486f847-5e70-4c3f-9849-180384cbf7e9",
+      "__origin": "internal"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-CountryMcpServerApplication<country-mcp-server>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.assistantapp.countrymcp.CountryMcpServerApplication",
+      "projectName": "country-mcp-server",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }
