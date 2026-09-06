@@ -1,0 +1,20 @@
+server:
+  port: ${COUNTRY_MCP_SERVER_PORT:8081}
+
+spring:
+  application:
+    name: country-mcp-server
+  ai:
+    mcp:
+      server:
+        name: country-mcp-server
+        version: 0.0.1
+        protocol: STREAMABLE
+        type: SYNC
+        annotation-scanner:
+          enabled: true
+
+app:
+  rest-countries:
+    base-url: ${REST_COUNTRIES_BASE_URL:https://api.restcountries.com/countries/v5}
+    api-key: ${REST_COUNTRIES_API_KEY:}
