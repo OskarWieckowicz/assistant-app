@@ -1,5 +1,6 @@
 package com.assistant_app.assistant_app.chat;
 
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chat(@RequestBody ChatRequest request) {
+    public Flux<ChatEvent> chat(@Valid @RequestBody ChatRequest request) {
         return chatService.sendMessage(request.message());
     }
     

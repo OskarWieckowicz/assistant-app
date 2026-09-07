@@ -1,68 +1,48 @@
-import { useState, type FormEvent } from "react";
+import { useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import "./App.css";
-import { readSseStream } from "./api/readSseStream";
+import { streamChat } from "./api/streamChat";
+import { MessageBubble } from "./components/MessageBubble";
 
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
-
-const appendAssistantChunk = (
-  current: Message[],
-  chunk: string,
-): Message[] => {
-  const last = current.at(-1);
-
-  if (last?.role !== "assistant") {
-    return [...current, { role: "assistant", content: chunk }];
-  }
-
-  return [
-    ...current.slice(0, -1),
-    { ...last, content: last.content + chunk },
-  ];
-};
+import { applyChatEvent, type ChatEvent, type Message } from "./api/chatEvents";
 
 const App = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const followOutput = useRef(true);
+
+  useLayoutEffect(() => {
+    const container = messagesRef.current;
+    if (container && followOutput.current) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const text = messageInput.trim();
     if (!text || pending) return;
 
-    setMessages((current) => [...current, { role: "user", content: text }]);
+    followOutput.current = true;
+    const assistantIndex = messages.length + 1;
+    setMessages((current) => [...current,
+      { role: "user", content: text },
+      { role: "assistant", content: "", thinking: "", tools: [], status: "running" },
+    ]);
+    const receive = (event: ChatEvent) => setMessages(current => current.map((message, index) =>
+      index === assistantIndex ? applyChatEvent(message, event) : message));
     setMessageInput("");
     setPending(true);
-    setError(null);
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "text/event-stream",
-        },
-        body: JSON.stringify({ message: text }),
-      });
-      if (!response.ok || !response.body) throw new Error("Request failed");
-
-      const receivedData = await readSseStream(response.body, (chunk) => {
-        setMessages((current) => appendAssistantChunk(current, chunk));
-      });
-
-      if (!receivedData) setError("Received an empty response.");
+      await streamChat(text, receive);
     } catch {
-      setError("Couldn't send the message.");
+      receive({ type: "error", text: "The connection was interrupted. Please try again." });
     } finally {
       setPending(false);
     }
   };
-
-  const waitingForFirstChunk = pending && messages.at(-1)?.role === "user";
 
   return (
     <div className="app">
@@ -71,7 +51,12 @@ const App = () => {
       </header>
 
       <div
+        ref={messagesRef}
         className="messages"
+        onScroll={(event) => {
+          const container = event.currentTarget;
+          followOutput.current = container.scrollHeight - container.scrollTop - container.clientHeight < 48;
+        }}
         role="log"
         aria-live="polite"
         aria-busy={pending}
@@ -80,23 +65,8 @@ const App = () => {
           <p className="empty">Send a message to get started.</p>
         )}
         {messages.map((message, index) => (
-          <div key={index} className={`bubble ${message.role}`}>
-            <span className="role">
-              {message.role === "user" ? "You" : "Assistant"}
-            </span>
-            {message.content && <p>{message.content}</p>}
-          </div>
+          <MessageBubble key={index} message={message} />
         ))}
-        {waitingForFirstChunk && (
-          <p className="status" role="status">
-            Thinking…
-          </p>
-        )}
-        {error && (
-          <p className="error" role="alert">
-            {error}
-          </p>
-        )}
       </div>
 
       <form className="composer" onSubmit={handleSubmit}>

@@ -15,6 +15,7 @@
 
 .messages {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -24,6 +25,7 @@
 
 .bubble {
   max-width: 80%;
+  flex-shrink: 0;
   padding: 0.6rem 0.85rem;
   border-radius: 0.75rem;
 }
@@ -43,6 +45,32 @@
   align-self: flex-start;
   background: #f3f4f6;
 }
+
+.markdown {
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.markdown p {
+  white-space: normal;
+}
+
+.markdown > * {
+  margin: 0.6rem 0;
+}
+
+.markdown > :first-child { margin-top: 0.25rem; }
+.markdown > :last-child { margin-bottom: 0; }
+.markdown :is(h1, h2, h3, h4, h5, h6) { font-size: 1rem; }
+.markdown :is(ul, ol) { padding-left: 1.4rem; }
+.markdown a { color: #1d4ed8; }
+.markdown code { background: #e5e7eb; border-radius: 0.2rem; padding: 0.1rem 0.25rem; }
+.markdown pre { padding: 0.6rem; background: #e5e7eb; border-radius: 0.35rem; overflow-x: auto; }
+.markdown pre code { padding: 0; }
+.markdown blockquote { border-left: 3px solid #9ca3af; padding-left: 0.75rem; color: #4b5563; }
+.markdown table { border-collapse: collapse; font-size: 0.85rem; }
+.markdown :is(th, td) { border: 1px solid #d1d5db; padding: 0.35rem 0.5rem; }
+.markdown img { max-width: 100%; height: auto; }
 
 .role {
   font-size: 0.7rem;
@@ -82,4 +110,96 @@
 
 .error {
   color: #b91c1c;
+}
+
+.activity {
+  margin: 0.5rem 0;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.activity summary {
+  cursor: pointer;
+  color: #374151;
+}
+
+.activity .thinking {
+  max-height: 18rem;
+  overflow-y: auto;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.bubble {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.tool-list {
+  padding: 0;
+  list-style: none;
+}
+
+.tool-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.tool-list [data-status="finished"] { color: #166534; }
+.tool-list [data-status="failed"],
+.tool-list [data-status="interrupted"] { color: #b91c1c; }
+
+.tool-call {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.tool-call summary {
+  padding: 0.6rem;
+}
+
+.tool-name {
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.tool-status {
+  margin-left: 0.75rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+[data-status="finished"] .tool-status { color: #166534; }
+[data-status="failed"] .tool-status,
+[data-status="interrupted"] .tool-status { color: #b91c1c; }
+
+.tool-content {
+  padding: 0 0.6rem 0.6rem;
+  color: #374151;
+}
+
+.tool-content h3 {
+  margin: 0.6rem 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tool-content pre {
+  margin: 0;
+  padding: 0.65rem;
+  max-height: 18rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f3f4f6;
+  border-radius: 0.35rem;
+  font-size: 0.75rem;
 }

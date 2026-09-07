@@ -7,7 +7,7 @@
       "request": "launch",
       "mainClass": "com.assistant_app.assistant_app.AssistantAppApplication",
       "projectName": "backend",
-      "noDebug": true,
+      "noDebug": false,
       "envFile": "${workspaceFolder}/.env",
       "__progressId": "d486f847-5e70-4c3f-9849-180384cbf7e9",
       "__origin": "internal"

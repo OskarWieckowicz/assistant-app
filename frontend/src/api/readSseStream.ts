@@ -15,17 +15,15 @@ const dataFromSseBlock = (block: string): string | null => {
 export const readSseStream = async (
   body: ReadableStream<Uint8Array>,
   onData: (data: string) => void,
-): Promise<boolean> => {
+): Promise<void> => {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
-  let receivedData = false;
 
   const emit = (block: string) => {
     const data = dataFromSseBlock(block);
     if (data === null) return;
 
-    receivedData = true;
     onData(data);
   };
 
@@ -42,8 +40,6 @@ export const readSseStream = async (
 
     buffer += decoder.decode();
     if (buffer.trim()) emit(buffer);
-
-    return receivedData;
   } finally {
     reader.releaseLock();
   }
