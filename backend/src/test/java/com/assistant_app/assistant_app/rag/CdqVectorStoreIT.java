@@ -7,12 +7,10 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(properties = "app.rag.ingestion.enabled=false")
-class CdqVectorStoreIT {
+class CdqVectorStoreIT extends RagIntegrationTestSupport {
 
     @Autowired
     private VectorStore vectorStore;

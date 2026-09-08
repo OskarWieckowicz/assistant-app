@@ -108,9 +108,10 @@ npm --prefix frontend test
 ./backend/mvnw -f backend/pom.xml test
 ```
 
-Backend tests require PostgreSQL, Ollama, the country MCP server and the backend
-environment variables from setup. To also run the RAG integration tests against
-previously ingested knowledge:
+The backend context and RAG integration tests disable MCP and use an isolated pgvector
+database managed by Testcontainers. They require Docker; the RAG integration tests
+additionally require Ollama. CDQ knowledge is ingested automatically into the test
+database:
 
 ```bash
 ./backend/mvnw -f backend/pom.xml '-Dtest=Cdq*IT' test

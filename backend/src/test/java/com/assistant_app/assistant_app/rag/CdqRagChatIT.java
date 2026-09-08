@@ -1,6 +1,5 @@
 package com.assistant_app.assistant_app.rag;
 
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
@@ -9,8 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(properties = "app.rag.ingestion.enabled=false")
-class CdqRagChatIT {
+class CdqRagChatIT extends RagIntegrationTestSupport {
 
         @Autowired
         private ChatClient chatClient;

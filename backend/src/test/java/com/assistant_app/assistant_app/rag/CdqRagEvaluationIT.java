@@ -11,16 +11,11 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// Requires PostgreSQL, Ollama, and previously ingested CDQ knowledge.
-@SpringBootTest(properties = {
-                "app.rag.ingestion.enabled=false",
-                "spring.ai.ollama.chat.options.temperature=0"
-})
-class CdqRagEvaluationIT {
+// Requires Docker and Ollama. PostgreSQL and CDQ knowledge are managed by the test suite.
+class CdqRagEvaluationIT extends RagIntegrationTestSupport {
 
         @Autowired
         private ChatClient chatClient;
