@@ -1,9 +1,5 @@
 # Assistant answers
 
-Actual assistant responses from the new test run, provided by the tester.
-Exact run timestamps were not recorded. Weather values reflect the responses at
-the time of testing, not live readings.
-
 ## 1. What is the capital city of Germany?
 
 Answer:
@@ -28,7 +24,7 @@ Answer:
 
 > Berlin is the capital city of Germany. It is a major metropolitan area known for its rich history, cultural significance, and landmarks such as the Brandenburg Gate and the Berlin Wall (which divided East and West Germany during the Cold War). As the political center of Germany, it serves as a key hub for government, business, and international relations.
 
-## 5. Own questions to show off
+## 5. Own questions
 
 ### What currency is used in Japan, which side of the road do people drive on, and what is the current temperature in its capital?
 

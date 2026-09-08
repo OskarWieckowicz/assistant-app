@@ -2,11 +2,6 @@
 
 A local Java/Spring AI assistant with a React chat, CDQ product RAG, and country and weather MCP tools.
 
-The `get_country` tool provides country names, capital, region, subregion, population,
-currencies (code, name, symbol), languages, area in square kilometers, driving side,
-international calling codes, and EU and Schengen membership. Missing values remain
-unknown; country statistics must not be interpreted as city statistics.
-
 ## Requirements
 
 - JDK 25.
