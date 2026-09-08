@@ -105,10 +105,13 @@ class ChatServiceTest {
 
     @Test
     void streamsThinkingSeparatelyAndSkipsEmptyChunks() {
+        // given
         var thinking = AssistantMessage.builder().content("")
                 .properties(java.util.Map.of("thinking", "Checking…")).build();
         given(chatModel.stream(any(Prompt.class))).willReturn(Flux.just(
                 new ChatResponse(List.of(new Generation(thinking))), chatResponse(""), chatResponse("Warsaw")));
+
+        // when / then
         StepVerifier.create(chatService.sendMessage("What is the capital of Poland?"))
                 .expectNext(ChatEvent.text("thinking_delta", "Checking…"),
                         ChatEvent.text("answer_delta", "Warsaw"), ChatEvent.text("done", null))
@@ -117,19 +120,25 @@ class ChatServiceTest {
 
     @Test
     void cancellingResponseCancelsModelSubscription() throws InterruptedException {
+        // given
         var cancelled = new java.util.concurrent.CountDownLatch(1);
         given(chatModel.stream(any(Prompt.class))).willReturn(
                 Flux.concat(Flux.just(chatResponse("Hello")), Flux.<ChatResponse>never())
                         .doOnCancel(cancelled::countDown));
+
+        // when
         StepVerifier.create(chatService.sendMessage("Hi"))
                 .expectNext(ChatEvent.text("answer_delta", "Hello"))
                 .thenCancel().verify(java.time.Duration.ofSeconds(5));
+
+        // then
         assertThat(cancelled.await(2, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
     @SuppressWarnings("unchecked")
     void sendsCollectedToolsBeforeModelError() {
+        // given
         var tool = ChatEvent.tool("tool_failed", "1", "country", "{}", "Tool failed.");
         given(chatModel.stream(any(Prompt.class))).willAnswer(invocation -> {
             Prompt prompt = invocation.getArgument(0);
@@ -141,6 +150,8 @@ class ChatServiceTest {
                         Flux.error(new IllegalStateException("Model failed")));
             });
         });
+
+        // when / then
         StepVerifier.create(chatService.sendMessage("Hi"))
                 .expectNext(ChatEvent.text("answer_delta", "Partial answer"), tool,
                         ChatEvent.text("error", "Could not complete the response."))
@@ -150,6 +161,7 @@ class ChatServiceTest {
     @Test
     @SuppressWarnings("unchecked")
     void eachSubscriptionGetsItsOwnToolHistory() {
+        // given
         var tool = ChatEvent.tool("tool_finished", "1", "country", "{}", "Warsaw");
         given(chatModel.stream(any(Prompt.class))).willAnswer(invocation -> {
             Prompt prompt = invocation.getArgument(0);
@@ -161,7 +173,11 @@ class ChatServiceTest {
                 return Flux.just(chatResponse("Warsaw"));
             });
         });
+
+        // when
         var response = chatService.sendMessage("Hi");
+
+        // then
         for (int i = 0; i < 2; i++) {
             StepVerifier.create(response)
                     .expectNext(ChatEvent.text("answer_delta", "Warsaw"), tool, ChatEvent.text("done", null))

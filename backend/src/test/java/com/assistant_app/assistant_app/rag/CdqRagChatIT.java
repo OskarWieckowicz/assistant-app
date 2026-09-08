@@ -17,22 +17,26 @@ class CdqRagChatIT {
 
         @Test
         void shouldAnswerUsingCdqKnowledge() {
+                // when
                 String answer = chatClient.prompt()
                                 .user("How does CDQ Fraud Guard assess whether a bank account can be trusted?")
                                 .call()
                                 .content();
 
+                // then
                 assertThat(answer).isNotBlank();
                 assertThat(answer).containsIgnoringCase("Trust Score");
         }
 
         @Test
         void shouldAnswerGeneralQuestionWhenNoCdqDocumentsMatch() {
+                // when
                 var response = chatClient.prompt()
                                 .user("what is capital city of Germany?")
                                 .call()
                                 .chatResponse();
 
+                // then
                 assertThat(response).isNotNull();
                 List<Document> documents = response.getMetadata()
                                 .get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS);
@@ -44,6 +48,7 @@ class CdqRagChatIT {
 
         @Test
         void shouldStreamGeneralAnswerWhenNoCdqDocumentsMatch() {
+                // when
                 String answer = chatClient.prompt()
                                 .user("what is capital city of Germany?")
                                 .stream()
@@ -52,6 +57,7 @@ class CdqRagChatIT {
                                 .map(chunks -> String.join("", chunks))
                                 .block(java.time.Duration.ofMinutes(2));
 
+                // then
                 assertThat(answer)
                                 .containsIgnoringCase("Berlin")
                                 .doesNotContainIgnoringCase("context", "cannot answer", "can't answer");

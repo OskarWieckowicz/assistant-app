@@ -1,6 +1,7 @@
 package com.assistantapp.countrymcp.tool;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,8 @@ class CountryToolsTest {
                 "Berlin",
                 "Europe",
                 "Western Europe",
-                83_445_000L);
+                83_445_000L, List.of(new CountryDetails.Currency("EUR", "Euro", "€")),
+                List.of("German"), 357114.0, "right", List.of("49"), true, true);
         StubCountryGateway gateway = new StubCountryGateway(Optional.of(germany));
         CountryTools tools = new CountryTools(gateway);
 

@@ -33,6 +33,12 @@ public class CdqKnowledgeLoader {
         reader.getCustomMetadata()
                 .put("title", "CDQ Fraud Guard");
 
+        reader.getCustomMetadata()
+                .put("retrieved_at", "2026-09-07T08:52:09+00:00");
+
+        reader.getCustomMetadata()
+                .put("language", "English");
+
         List<Document> documents = reader.get();
         TokenTextSplitter splitter = TokenTextSplitter.builder()
                 .withChunkSize(250)

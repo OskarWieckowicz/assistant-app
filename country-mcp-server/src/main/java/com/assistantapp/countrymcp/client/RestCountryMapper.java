@@ -24,7 +24,23 @@ public class RestCountryMapper {
                 selectCapital(source.capitals()),
                 source.region(),
                 source.subregion(),
-                source.population());
+                source.population(),
+                source.currencies() == null ? null : source.currencies().stream()
+                        .filter(Objects::nonNull)
+                        .map(currency -> new CountryDetails.Currency(
+                                currency.code(), currency.name(), currency.symbol()))
+                        .toList(),
+                source.languages() == null ? null : source.languages().stream()
+                        .filter(Objects::nonNull)
+                        .map(RestCountry.Language::name)
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .toList(),
+                source.area() == null ? null : source.area().kilometers(),
+                source.cars() == null ? null : source.cars().drivingSide(),
+                source.callingCodes(),
+                source.memberships() == null ? null : source.memberships().eu(),
+                source.memberships() == null ? null : source.memberships().schengen());
     }
 
     private String selectCapital(List<RestCountry.Capital> capitals) {

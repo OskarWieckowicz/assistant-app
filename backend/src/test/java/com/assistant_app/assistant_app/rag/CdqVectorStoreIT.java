@@ -19,6 +19,7 @@ class CdqVectorStoreIT {
 
     @Test
     void similaritySearch_findsTrustScoreInformation() {
+        // given
         SearchRequest request = SearchRequest.builder()
                 .query("How does CDQ assess whether a bank account can be trusted?")
                 .topK(2)
@@ -26,8 +27,10 @@ class CdqVectorStoreIT {
                         "knowledge_base == 'cdq-fraud-guard'")
                 .build();
 
+        // when
         List<Document> results = vectorStore.similaritySearch(request);
 
+        // then
         assertThat(results)
                 .isNotEmpty()
                 .hasSizeLessThanOrEqualTo(2);

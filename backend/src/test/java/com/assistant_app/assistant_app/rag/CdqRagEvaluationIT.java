@@ -35,11 +35,13 @@ class CdqRagEvaluationIT {
                         "How can CDQ Fraud Guard integrate with existing systems?",
         })
         void shouldAnswerConsistentlyWithRetrievedContext(String question) {
+                // when
                 var response = chatClient.prompt()
                                 .user(question)
                                 .call()
                                 .chatResponse();
 
+                // then
                 assertThat(response).as("Chat response for: %s", question).isNotNull();
 
                 String answer = response.getResult().getOutput().getText();

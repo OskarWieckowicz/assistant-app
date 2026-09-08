@@ -1,153 +1,131 @@
-# assistant-app
+# AI Assistant
 
-Monorepo: Spring Boot / Maven (`backend`) + React / Vite / npm (`frontend`).
-Each application manages its own dependencies; npm commands run in `frontend`.
+A local Java/Spring AI assistant with a React chat, CDQ product RAG, and country and weather MCP tools.
+
+The `get_country` tool provides country names, capital, region, subregion, population,
+currencies (code, name, symbol), languages, area in square kilometers, driving side,
+international calling codes, and EU and Schengen membership. Missing values remain
+unknown; country statistics must not be interpreted as city statistics.
 
 ## Requirements
 
-- JDK 25 (`java -version`; set `JAVA_HOME` to this JDK).
-- Node.js 22.12 or newer and npm.
-- Docker with Docker Compose v2, running locally.
-- [Ollama](https://docs.ollama.com/quickstart), running locally.
-
-Maven is provided by `backend/mvnw` (`mvnw.cmd` on Windows).
-The first setup requires internet access to download dependencies and the model.
+- JDK 25.
+- Node.js 22.12 or newer, npm and Git.
+- Docker with Docker Compose v2.
+- [Ollama](https://docs.ollama.com/quickstart).
+- A [REST Countries](https://restcountries.com/) API key for its free tier.
+- A [WeatherAPI](https://www.weatherapi.com/) API key for its free tier.
 
 ## Local setup
 
-Run Docker commands from the repository root.
+Run commands from the repository root.
 
-### 1. PostgreSQL
+### 1. Environment variables
+
+Copy `.env.example` to `.env` and fill in all values. The `.env` file is the single
+local source of API keys and machine-specific paths; it is ignored by Git.
+
+```bash
+cp .env.example .env
+```
+
+**VS Code / Cursor:** the included Java launch configurations in
+`assistant-app.code-workspace` load `.env` automatically.
+
+**Terminal:** load `.env` into the current shell before starting services or running
+backend integration tests:
+
+```bash
+set -a
+source .env
+set +a
+```
+
+| Variable                 | Used by            | Value                                       |
+| ------------------------ | ------------------ | ------------------------------------------- |
+| `REST_COUNTRIES_API_KEY` | Country MCP server | REST Countries API key                      |
+| `WEATHER_API_KEY`        | Backend            | WeatherAPI key                              |
+| `WEATHER_MCP_SCRIPT`     | Backend            | Absolute path to `mcp-weather/src/index.ts` |
+
+### 2. Local weather MCP server
+
+Clone [semdin/mcp-weather](https://github.com/semdin/mcp-weather) next to this project and install its dependencies.
+
+The backend starts the weather MCP server automatically using `WEATHER_MCP_SCRIPT`
+and `WEATHER_API_KEY`.
+
+### 3. PostgreSQL
+
+Start PostgreSQL with pgvector:
 
 ```bash
 docker compose up -d --wait postgres
 ```
 
-PostgreSQL is available at `localhost:5432`, with database `assistant` and
-local development credentials `postgres` / `postgres`.
-On a fresh data volume, `docker/init-pgvector.sql` enables the `vector` extension.
-The mount requires an existing script file and exposes it read-only.
+### 4. Ollama
 
-For a database volume created before this script was added, apply it once without
-deleting existing data:
-
-```bash
-docker compose exec -T postgres psql -U postgres -d assistant -v ON_ERROR_STOP=1 < docker/init-pgvector.sql
-```
-
-Verify the extension:
-
-```bash
-docker compose exec -T postgres psql -U postgres -d assistant -c "SELECT extversion FROM pg_extension WHERE extname = 'vector';"
-```
-
-### 2. Ollama
-
-Start the Ollama application or run `ollama serve` in a separate terminal if the
-service is not already running. The backend connects to `http://localhost:11434`.
-Download the configured chat model:
+Start Ollama locally and download the chat and embedding models:
 
 ```bash
 ollama pull qwen3:4b
+ollama pull mxbai-embed-large
 ```
 
-### 3. Country MCP server
+### 5. Start the application
 
-Start the MCP server **before the backend**. It listens on
-`http://localhost:8081/mcp` and exposes `get_country` over Streamable HTTP.
-REST Countries v5 requires an API key. Set `REST_COUNTRIES_API_KEY` in the
-server's environment, then run from the repository root:
+Start the country MCP server first (port 8081):
 
 ```bash
 ./backend/mvnw -f country-mcp-server/pom.xml spring-boot:run
 ```
 
-If the key is already configured in the ignored
-`country-mcp-server/src/main/resources/application-local.yaml`, activate that
-profile explicitly instead:
+Then start the backend in a separate terminal (port 8080). On the first run, load the
+CDQ knowledge into pgvector:
 
 ```bash
-./backend/mvnw -f country-mcp-server/pom.xml spring-boot:run -Dspring-boot.run.profiles=local
+./backend/mvnw -f backend/pom.xml spring-boot:run -Dspring-boot.run.arguments=--app.rag.ingestion.enabled=true
 ```
 
-After restarting the MCP server, restart the backend so it initializes a new
-MCP session. An old session can return `MCP session with server terminated`.
-An `Authorization key required` / HTTP 401 tool error means the MCP server's
-REST Countries API key configuration needs to be checked.
-
-### 4. Backend
-
-In a new terminal, starting from the repository root:
+In an IDE, add `--app.rag.ingestion.enabled=true` to the backend's program arguments.
+Wait for `Ingested ... CDQ knowledge documents`. Repeat ingestion after changing the
+knowledge file; it replaces existing CDQ embeddings. For subsequent starts, omit the argument:
 
 ```bash
-cd backend
-./mvnw spring-boot:run
+./backend/mvnw -f backend/pom.xml spring-boot:run
 ```
 
-The backend listens on `http://localhost:8080` and exposes `POST /api/chat`.
-
-### 5. Frontend
-
-In another terminal, starting from the repository root:
+Start the frontend in another terminal:
 
 ```bash
-cd frontend
-npm ci
-npm run dev
+npm --prefix frontend ci
+npm --prefix frontend run dev
 ```
 
-Open `http://localhost:5173`. Vite proxies `/api` requests to the backend on port
-8080 during development. The UI sends messages to `POST /api/chat` and shows
-the conversation.
+Open [localhost:5173](http://localhost:5173).
 
-## Verification
+## Tests
 
-From the repository root:
+Run the automated tests:
 
 ```bash
-docker compose config --quiet
-npm --prefix frontend run lint
-npm --prefix frontend run build
+npm --prefix frontend test
+./backend/mvnw -f country-mcp-server/pom.xml test
+./backend/mvnw -f backend/pom.xml test
 ```
 
-Compile the backend without starting external services:
+Backend tests require PostgreSQL, Ollama, the country MCP server and the backend
+environment variables from setup. To also run the RAG integration tests against
+previously ingested knowledge:
 
 ```bash
-cd backend
-./mvnw compile
+./backend/mvnw -f backend/pom.xml '-Dtest=Cdq*IT' test
 ```
 
-Run `./mvnw test` from `backend` with PostgreSQL and Ollama running; the existing
-test loads the Spring application context.
+## Assistant answers
 
-Run the RAG evaluation test explicitly from `backend`:
+[ANSWERS.md](ANSWERS.md) contains the recruiting task questions and placeholders for
+answers from the running assistant.
 
-```bash
-./mvnw -Dtest=CdqRagEvaluationIT test
-```
+## AI usage
 
-This requires PostgreSQL with previously ingested CDQ knowledge and Ollama with
-`qwen3:4b` and `mxbai-embed-large` available. The test does not ingest or replace
-documents. It evaluates three answers against their retrieved context using a
-separate chat client backed by the same model. Each question requires one answer
-generation and one evaluation call; LLM judgments can vary between runs.
-The `IT` suffix keeps this test out of the default `./mvnw test` run.
-
-## VS Code
-
-Open `assistant-app.code-workspace` to load the backend, frontend, and repository
-folders. Install the Java and Maven extensions to use the backend launch
-configuration and the `backend: compile` / `backend: spring-boot:run` tasks.
-Shared editor configuration lives in `.vscode/settings.json`,
-`.vscode/tasks.json`, and `.vscode/launch.json`; these files and the workspace
-file should be included when committing the repository setup.
-
-## Stopping local services
-
-Stop backend and frontend terminals with Ctrl+C. From the repository root:
-
-```bash
-docker compose stop postgres
-```
-
-The database data remains in the named Docker volume.
+I used an AI coding assistant mainly to generate tests, build the frontend, and write documentation.

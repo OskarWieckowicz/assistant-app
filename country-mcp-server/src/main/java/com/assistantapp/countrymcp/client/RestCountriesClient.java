@@ -12,7 +12,8 @@ import org.springframework.web.client.RestClientException;
 @Component
 public class RestCountriesClient {
 
-        private static final String RESPONSE_FIELDS = "names.common,names.official,capitals,region,subregion,population";
+        private static final String RESPONSE_FIELDS = "names.common,names.official,capitals,region,subregion,population,"
+                        + "currencies,languages,area.kilometers,cars.driving_side,calling_codes,memberships.eu,memberships.schengen";
 
         private final RestClient restClient;
 

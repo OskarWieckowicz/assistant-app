@@ -12,7 +12,8 @@ spring:
             weather:
               command: npx
               args:
-                - tsx
+                - --yes
+                - tsx@4.20.3
                 - ${WEATHER_MCP_SCRIPT}
               env:
                 WEATHER_API_URL: https://api.weatherapi.com/v1/current.json

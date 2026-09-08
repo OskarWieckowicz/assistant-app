@@ -26,7 +26,7 @@ class RestCountriesGatewayAdapterTest {
                 List.of(new RestCountry.Capital("Berlin", true)),
                 "Europe",
                 "Western Europe",
-                83_445_000L);
+                83_445_000L, null, null, null, null, null, null);
         RestCountriesResponse response = new RestCountriesResponse(
                 new RestCountriesResponse.Data(List.of(germany)));
         client.respondWith(response);

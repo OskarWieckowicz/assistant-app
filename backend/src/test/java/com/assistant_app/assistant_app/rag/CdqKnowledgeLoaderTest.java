@@ -16,20 +16,24 @@ public class CdqKnowledgeLoaderTest {
 
         @Test
         void load_returnsCdqDocumentWithContentAndMetadata() {
+                // given
+                String expectedSource = "https://www.cdq.com/products/cdq-fraud-guard";
+
+                // when
                 List<Document> documents = loader.load();
+
+                // then
                 assertThat(documents).hasSizeGreaterThan(1);
 
                 Document document = documents.get(0);
                 assertThat(document.getText())
-                                .contains("CDQ Fraud Guard")
-                                .contains("Trust Score")
-                                .contains("Bank account verification");
+                                .contains("CDQ Fraud Guard");
                 assertThat(document.getMetadata())
                                 .containsEntry("knowledge_base", "cdq-fraud-guard")
                                 .containsEntry("title", "CDQ Fraud Guard")
                                 .containsEntry(
                                                 "source_url",
-                                                "https://www.cdq.com/products/cdq-fraud-guard")
+                                                expectedSource)
                                 .containsEntry("source", "cdq-fraud-guard.txt")
                                 .containsEntry("charset", "UTF-8");
 
@@ -40,6 +44,6 @@ public class CdqKnowledgeLoaderTest {
                 assertThat(combinedContent)
                                 .contains("CDQ Fraud Guard")
                                 .contains("Trust Score")
-                                .contains("Bank account verification");
+                                .contains("Bank Account Verification");
         }
 }

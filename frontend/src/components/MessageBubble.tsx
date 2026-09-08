@@ -11,7 +11,19 @@ export function MessageBubble({ message }: { message: Message }) {
     <div className={`bubble ${message.role}`}>
       <span className="role">{message.role === "user" ? "You" : "Assistant"}</span>
       {message.role === "assistant" && (
-        <details className="activity">
+        <details
+          className="activity"
+          onToggle={(event) => {
+            if (!event.currentTarget.open) return;
+            const bubble = event.currentTarget.closest(".bubble");
+            const container = event.currentTarget.closest(".messages");
+            if (!(bubble instanceof HTMLElement) || !(container instanceof HTMLElement)) return;
+            const overflow = bubble.getBoundingClientRect().bottom - container.getBoundingClientRect().bottom;
+            if (overflow > 0) {
+              container.scrollTop += overflow;
+            }
+          }}
+        >
           <summary>
             {running ? "Working…" : "Activity"}
             {tools.length > 0 && ` · tools: ${tools.length}`}

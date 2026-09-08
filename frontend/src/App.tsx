@@ -10,13 +10,24 @@ const App = () => {
   const [messageInput, setMessageInput] = useState("");
   const [pending, setPending] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const messagesInnerRef = useRef<HTMLDivElement>(null);
   const followOutput = useRef(true);
 
   useLayoutEffect(() => {
     const container = messagesRef.current;
-    if (container && followOutput.current) {
-      container.scrollTop = container.scrollHeight;
-    }
+    const inner = messagesInnerRef.current;
+    if (!container || !inner) return;
+
+    const follow = () => {
+      if (followOutput.current) {
+        container.scrollTop = container.scrollHeight;
+      }
+    };
+
+    follow();
+    const observer = new ResizeObserver(follow);
+    observer.observe(inner);
+    return () => observer.disconnect();
   }, [messages]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -61,12 +72,14 @@ const App = () => {
         aria-live="polite"
         aria-busy={pending}
       >
-        {messages.length === 0 && (
-          <p className="empty">Send a message to get started.</p>
-        )}
-        {messages.map((message, index) => (
-          <MessageBubble key={index} message={message} />
-        ))}
+        <div className="messages-inner" ref={messagesInnerRef}>
+          {messages.length === 0 && (
+            <p className="empty">Send a message to get started.</p>
+          )}
+          {messages.map((message, index) => (
+            <MessageBubble key={index} message={message} />
+          ))}
+        </div>
       </div>
 
       <form className="composer" onSubmit={handleSubmit}>

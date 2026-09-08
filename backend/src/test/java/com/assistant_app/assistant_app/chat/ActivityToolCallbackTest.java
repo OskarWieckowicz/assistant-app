@@ -13,6 +13,7 @@ import static org.mockito.Mockito.*;
 class ActivityToolCallbackTest {
     @Test
     void reportsFailureToOnlyTheCurrentRequestAndPreservesContext() {
+        // given
         ToolCallback delegate = mock(ToolCallback.class);
         when(delegate.getToolDefinition()).thenReturn(ToolDefinition.builder()
                 .name("country").description("Country lookup").inputSchema("{}").build());
@@ -28,6 +29,8 @@ class ActivityToolCallbackTest {
         });
         when(delegate.call("{}", second)).thenReturn("Warsaw");
         var callback = new ActivityToolCallback(delegate);
+
+        // when / then
         assertThatThrownBy(() -> callback.call("{}", first)).isInstanceOf(IllegalStateException.class);
         assertThat(callback.call("{}", second)).isEqualTo("Warsaw");
         assertThat(firstEvents).extracting(ChatEvent::type).containsExactly("tool_failed");
